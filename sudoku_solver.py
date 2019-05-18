@@ -41,25 +41,15 @@ def solver(input_):
         b = B
         L = 20
         epsilon = 10**-10
-
-        #x_new = x_ori   #? or below one?
         x_top = np.zeros(A.shape[1])
         x_bottom = np.zeros(A.shape[1])
         x_ori = x_top - x_bottom
         for j in range(L):
             Weight = 1/(abs(x_ori)+0.7)
-
-
             W = np.block([Weight,Weight])
-
-
             cW = np.matrix(c*W)
-
-    
             ret = sco.linprog(cW, G, h, H, b, method='interior-point', options={'tol':1e-10})
             x_new = ret.x[:A.shape[1]] - ret.x[A.shape[1]:]
-
-
             #x_new = np.reshape(x, (81, 9))
             if LA.norm((x_new - x_ori)) <epsilon:
                 break

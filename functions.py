@@ -61,7 +61,6 @@ def boxes():
 from collections import defaultdict
 
 def repeats(matrix, original):
-    #print(matrix)
     temp = defaultdict(list)
     marked_matrix = np.ones((9,9))
     for i in range(9):
@@ -69,7 +68,6 @@ def repeats(matrix, original):
             mark = False
             val = matrix[i][j]
             temp[val].append([i,j])
-            #print(val)
             
             for l in range(9):
                 if matrix[l][j] == val and i!= l:
@@ -79,7 +77,6 @@ def repeats(matrix, original):
                     temp[val]
         
     
-                    #print(marked_matrix)
             for k in range(9):
                 if matrix[i][k]== val and k!= j:
                     mark = True
