@@ -1,6 +1,6 @@
 # Sudoku Challenge
  
-Description: This project is aim to use optization to solve four datasets of the sudoku game. Since the problem fits the framework of linear programming, I'll be using LP combined with recursion method.
+Description: This project is aim to use optization to solve four datasets of the sudoku game. Since the problem fits the framework of linear programming, I'll be using LP with weight combined with a function that checks for repeated values.
 
 ## Compile/Run the code
 
