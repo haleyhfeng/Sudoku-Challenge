@@ -5,40 +5,43 @@ import scipy.linalg as scl # linear algebra algorithms
 import scipy.optimize as sco # for minimization use
 import matplotlib.pylab as plt # for visualization
 
-from cvxopt import solvers, matrix
 import time
-solvers.options['show_progress'] = False
+import sys
+from multiprocessing import Pool
+from sudoku_solver import solver
 
-data = pd.read_csv("data/small1.csv") 
+# We test the following algoritm on small data set.
 
-corr_cnt = 0
-start = time.time()
-for i in range(len(data)):
-    quiz = data["quizzes"][i]
-    solu = data["solutions"][i]
-    z = solver(quiz, solu)
-    D = np.reshape(np.array([np.argmax(d)+1 for d in z]), (9,9) ) \
-        - np.reshape([int(c) for c in solu], (9,9))
-    if np.linalg.norm(D, np.inf) > 0: # Checking if solution is correct
-        New = np.array([np.argmax(d)+1 for d in z]) # sudoku solution in 1d array form
-        D = D.reshape(-1) # array with zero or nonzero
-        for j in range(len(D)):
-            if D[j] != 0: 
-                New[j] = 0 # replace repeated variable with zero
-        new_z = solver(New, solu) # solve new puzzle using LP 
-        if np.linalg.norm(np.reshape(np.array([np.argmax(d)+1 for d in new_z]), (9,9) ) \
-        - np.reshape([int(c) for c in solu], (9,9)), np.inf) > 0:
-            pass
-        else:
-            #print("CORRECT",i)
-            corr_cnt += 1
-        
-    else:
-        #print("CORRECT",i)
-        corr_cnt += 1
-    
-    if (i+1) % 20 == 0:
-        end = time.time()
-        print("Aver Time: {t:6.2f} secs. Success rate: {corr} / {all} ".format(t=(end-start)/(i+1), corr=corr_cnt, all=i+1) )
-end = time.time()
-print("Aver Time: {t:6.2f} secs. Success rate: {corr} / {all} ".format(t=(end-start)/(i+1), corr=corr_cnt, all=i+1) )
+if __name__ == "__main__":
+	if len(sys.argv) < 2:
+		data = pd.read_csv("./small2.csv") 
+	else:
+		data = pd.read_csv(sys.argv[1])
+
+	corr_cnt = 0
+	start = time.time()
+
+	random_seed = 42
+	sample_max  = 10
+
+
+	np.random.seed(random_seed)
+
+	if len(data) > sample_max:
+	    samples = np.random.choice(len(data), sample_max)
+	else:
+	    samples = np.arange(len(data))
+
+	pool = Pool() 
+
+	quizzes = data["quizzes"][samples]
+	solutions = data["solutions"][samples]
+
+	res = pool.map(solver, quizzes)
+
+	corr_cnt = np.sum(1*(res == solutions)) 
+	end = time.time()
+
+	# report:
+	print("Aver Time: {t:6.2f} secs. Success rate: {corr} / {all} ".format(t=(end-start)/(len(samples)), corr=corr_cnt, all=len(samples)) )
+
